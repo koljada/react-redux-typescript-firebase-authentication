@@ -9,7 +9,6 @@ import { UserList } from "./UserList";
 class HomeComponent extends React.Component {
   public componentDidMount() {
     const { onSetUsers }: any = this.props;
-
     db.onceGetUsers().then(snapshot => onSetUsers(snapshot.val()));
   }
 

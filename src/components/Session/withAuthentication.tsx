@@ -3,39 +3,28 @@ import { connect } from "react-redux";
 import { Dispatch } from "redux";
 import { firebase } from "../../firebase";
 
-import { setAuthUser } from "../../actions/index";
+import { setAuthUserAction } from "../../actions/index";
 
 import * as Firebase from "firebase";
 
-
 interface InterfaceProps {
-  authUser?: any;
-}
-
-interface InterfaceState {
-  authUser?: any;
+  onSetAuthUser: ((authUser: Firebase.User | null) => void);
 }
 
 export const withAuthentication = (Component: any) => {
-  class WithAuthentication extends React.Component<
-    InterfaceProps,
-    InterfaceState
-    > {
-    public componentDidMount() {
-      const { onSetAuthUser }: any = this.props;
+  class WithAuthentication extends React.Component<InterfaceProps> {
 
-      firebase.auth.onAuthStateChanged(authUser => {
-        authUser ? onSetAuthUser(authUser) : onSetAuthUser(null);
-      });
+    public componentDidMount() {
+      firebase.auth.onAuthStateChanged(authUser => this.props.onSetAuthUser(authUser));
     }
 
     public render() {
-      return <Component />;
+      return (<Component />);
     }
   }
 
   const mapDispatchToProps = (dispatch: Dispatch) => ({
-    onSetAuthUser: (authUser: Firebase.User) => dispatch(setAuthUser(authUser))
+    onSetAuthUser: (authUser: Firebase.User | null) => { dispatch(setAuthUserAction(authUser)); }
   });
 
   return connect(
