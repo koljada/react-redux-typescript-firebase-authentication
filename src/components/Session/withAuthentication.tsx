@@ -11,10 +11,11 @@ interface InterfaceProps {
   onSetAuthUser: ((authUser: Firebase.User | null) => void);
 }
 
-export const withAuthentication = (Component: any) => {
+export const withAuthentication = (Component: React.ComponentType) => {
   class WithAuthentication extends React.Component<InterfaceProps> {
 
     public componentDidMount() {
+      // console.log('withAuthentication: didMount');
       firebase.auth.onAuthStateChanged(authUser => this.props.onSetAuthUser(authUser));
     }
 

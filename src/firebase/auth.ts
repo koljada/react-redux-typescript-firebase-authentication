@@ -1,10 +1,18 @@
 import { auth } from "./firebase";
 
+import User from "../models/User";
+
 // Sign Up
-export const doCreateUserWithEmailAndPassword = (
-  email: string,
-  password: string
-) => auth.createUserWithEmailAndPassword(email, password);
+export const doCreateUserWithEmailAndPassword = (email: string, password: string) =>
+  auth.createUserWithEmailAndPassword(email, password)
+    .then(credentials => {
+      if (credentials.user) {
+        return new User(credentials.user);
+      }
+      else {
+        throw new Error('User is empty');
+      }
+    });
 
 // Sign In
 export const doSignInWithEmailAndPassword = (email: string, password: string) =>

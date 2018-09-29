@@ -1,17 +1,21 @@
+import { History } from "history";
 import * as React from "react";
 import * as routes from "../../constants/routes";
 import { auth, db } from "../../firebase";
+import User from "../../models/User";
 
-interface InterfaceProps {
+interface IProps {
   email?: string;
-  error?: any;
-  history?: any;
   passwordOne?: string;
   passwordTwo?: string;
   username?: string;
+  
+  error?: any;
+
+  history: History;
 }
 
-interface InterfaceState {
+interface IState {
   email: string;
   error: any;
   passwordOne: string;
@@ -19,11 +23,8 @@ interface InterfaceState {
   username: string;
 }
 
-export class SignUpForm extends React.Component<
-  InterfaceProps,
-  InterfaceState
-> {
-  private static INITIAL_STATE = {
+export default class SignUpForm extends React.Component<IProps, IState> {
+  private static readonly INITIAL_STATE: IState = {
     email: "",
     error: null,
     passwordOne: "",
@@ -35,69 +36,71 @@ export class SignUpForm extends React.Component<
     return { [propertyName]: value };
   }
 
-  constructor(props: InterfaceProps) {
+  constructor(props: IProps) {
     super(props);
     this.state = { ...SignUpForm.INITIAL_STATE };
-  }
+    this.bindEvents();
+  }  
 
-  public onSubmit(event: any) {
+  public onSubmit(event: React.FormEvent) {
     event.preventDefault();
 
-    const { email, passwordOne, username } = this.state;
-    const { history } = this.props;
-
     auth
-      .doCreateUserWithEmailAndPassword(email, passwordOne)
-      .then((authUser: any) => {
-
+      .doCreateUserWithEmailAndPassword(this.state.email, this.state.passwordOne)
+      .then((user: User) => {
+        user.name = this.state.username;
         // Create a user in your own accessible Firebase Database too
-        db.doCreateUser(authUser.user.uid, username, email)
+        db.doCreateUser(user)
           .then(() => {
-
             this.setState(() => ({ ...SignUpForm.INITIAL_STATE }));
-            history.push(routes.HOME);
+            this.props.history.push(routes.HOME);
           })
           .catch(error => {
+            console.error(error);
             this.setState(SignUpForm.propKey("error", error));
           });
       })
       .catch(error => {
+        console.error(error);
         this.setState(SignUpForm.propKey("error", error));
       });
   }
 
   public render() {
-    const { username, email, passwordOne, passwordTwo, error } = this.state;
 
     const isInvalid =
-      passwordOne !== passwordTwo ||
-      passwordOne === "" ||
-      email === "" ||
-      username === "";
+      this.state.passwordOne !== this.state.passwordTwo ||
+      this.state.passwordOne === "" ||
+      this.state.email === "" ||
+      this.state.username === "";
 
     return (
-      <form onSubmit={(event) => this.onSubmit(event)}>
+      <form onSubmit={this.onSubmit}>
         <input
-          value={username}
-          onChange={event => this.setStateWithEvent(event, "username")}
+          id="username"
+          value={this.state.username}
+          onChange={this.setStateWithEvent}
           type="text"
           placeholder="Full Name"
         />
         <input
-          value={email}
-          onChange={event => this.setStateWithEvent(event, "email")}
+          id="email"
+          value={this.state.email}
+          onChange={this.setStateWithEvent}
           type="text"
           placeholder="Email Address"
         />
         <input
-          value={passwordOne}
-          onChange={event => this.setStateWithEvent(event, "passwordOne")}
+          id="passwordOne"
+          value={this.state.passwordOne}
+          onChange={this.setStateWithEvent}
           type="password"
           placeholder="Password"
         />
         <input
-          value={passwordTwo}
-          onChange={event => this.setStateWithEvent(event, "passwordTwo")}
+          id="passwordTwo"
+          value={this.state.passwordTwo}
+          onChange={this.setStateWithEvent}
           type="password"
           placeholder="Confirm Password"
         />
@@ -105,12 +108,17 @@ export class SignUpForm extends React.Component<
           Sign Up
         </button>
 
-        {error && <p>{error.message}</p>}
+        {this.state.error && <p>{this.state.error.message}</p>}
       </form>
     );
   }
 
-  private setStateWithEvent(event: any, columnType: string) {
-    this.setState(SignUpForm.propKey(columnType, (event.target as any).value));
+  private setStateWithEvent(event: React.ChangeEvent<HTMLInputElement>) {
+    this.setState(SignUpForm.propKey(event.target.id, event.target.value));
+  }
+
+  private bindEvents() {
+    this.setStateWithEvent = this.setStateWithEvent.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
   }
 }

@@ -5,8 +5,10 @@ import { Link } from "react-router-dom";
 import * as routes from "../../constants/routes";
 import { SignOutButton } from "../SignOut";
 
-const NavigationComponent = ({ authUser }: any) => (
-  <div>{authUser ? <NavigationAuth /> : <NavigationNonAuth />}</div>
+import { IRootState, ISessionState } from "../../models/State";
+
+const NavigationComponent = (props: ISessionState) => (
+  <div>{!!props.authUser ? <NavigationAuth /> : <NavigationNonAuth />}</div>
 );
 
 const NavigationAuth = () => (
@@ -37,7 +39,7 @@ const NavigationNonAuth = () => (
   </ul>
 );
 
-const mapStateToProps = (state: any) => ({
+const mapStateToProps = (state: IRootState) => ({
   authUser: state.sessionState.authUser
 });
 

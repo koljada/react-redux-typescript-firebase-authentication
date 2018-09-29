@@ -1,24 +1,24 @@
 import * as React from "react";
+import { IUserHash } from "../../models/User";
 
-interface InterfaceProps {
-  users?: any;
+interface IProps {
+  users?: IUserHash;
 }
 
-export class UserList extends React.Component<InterfaceProps, {}> {
-  constructor(props: any) {
+export class UserList extends React.Component<IProps> {
+
+  constructor(props: IProps) {
     super(props);
   }
 
   public render() {
-    const { users }: any = this.props;
-
     return (
       <div>
         <h2>List of Usernames of Users</h2>
         <p>(Saved on Sign Up in Firebase Database)</p>
 
-        {Object.keys(users).map(key => (
-          <div key={key}>{users[key].username}</div>
+        {this.props.users && Object.keys(this.props.users).map((key, ind) => (
+          <div key={key}><span>{ind + 1}.</span> {this.props.users![key].name}</div>
         ))}
       </div>
     );

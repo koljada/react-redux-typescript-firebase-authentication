@@ -1,14 +1,21 @@
+import { History } from "history";
 import * as React from "react";
 import { Link, withRouter } from "react-router-dom";
 import * as routes from "../../constants/routes";
-import { SignUpForm } from "./SingUpForm";
+import SignUpForm from "./SingUpForm";
 
-const SignUpComponent = () => (
-  <div>
-    <h1>SignUp</h1>
-    <SignUpForm />
-  </div>
-);
+interface IHistory {
+  history: History;
+}
+
+const SignUpComponent = (props: IHistory) => {
+  return (
+    <div>
+      <h1>Sign Up</h1>
+      <SignUpForm history={props.history} />
+    </div>
+  );
+};
 
 export const SignUpLink = () => (
   <p>

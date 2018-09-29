@@ -1,11 +1,14 @@
+import { AnyAction } from 'redux';
 import { ActionType, getType } from 'typesafe-actions';
-import * as sessionActions from '../actions';
-export type SessionAction = ActionType<typeof sessionActions>;
 
+import * as actions from '../actions';
+import { ISessionState } from '../models/State';
 import User from '../models/User';
 
-export interface ISessionState {
-  authUser: User | null
+type SessionAction = ActionType<typeof actions.setAuthUserAction>;
+
+const INITIAL_STATE = {
+  authUser: null
 };
 
 const applySetAuthUser = (state: ISessionState, action: SessionAction) => ({
@@ -13,10 +16,11 @@ const applySetAuthUser = (state: ISessionState, action: SessionAction) => ({
   authUser: action.payload ? new User(action.payload) : null
 });
 
-export function sessionReducer(state: ISessionState = { authUser: null }, action: SessionAction) {
+export function sessionReducer(state: ISessionState = INITIAL_STATE, action: AnyAction) {
+  // console.log('state sessionReducer', state);
   switch (action.type) {
-    case getType(sessionActions.setAuthUserAction): {
-      return applySetAuthUser(state, action);
+    case getType(actions.setAuthUserAction): {
+      return applySetAuthUser(state, action as SessionAction);
     }
 
     default:

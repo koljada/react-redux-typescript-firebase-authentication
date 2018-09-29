@@ -1,3 +1,4 @@
+import { History } from "history";
 import * as React from "react";
 import * as routes from "../../constants/routes";
 import { auth } from "../../firebase";
@@ -5,7 +6,7 @@ import { auth } from "../../firebase";
 interface InterfaceProps {
   email?: string;
   error?: any;
-  history?: any;
+  history?: History;
   password?: string;
 }
 
@@ -15,10 +16,7 @@ interface InterfaceState {
   password: string;
 }
 
-export class SignInForm extends React.Component<
-  InterfaceProps,
-  InterfaceState
-> {
+export class SignInForm extends React.Component<InterfaceProps, InterfaceState> {
   private static INITIAL_STATE = {
     email: "",
     error: null,
@@ -33,42 +31,39 @@ export class SignInForm extends React.Component<
     super(props);
 
     this.state = { ...SignInForm.INITIAL_STATE };
+    this.bindEvents();
   }
 
-  public onSubmit = (event: any) => {
-    const { email, password } = this.state;
-
-    const { history } = this.props;
+  public onSubmit = (event: React.FormEvent) => {
+    event.preventDefault();
 
     auth
-      .doSignInWithEmailAndPassword(email, password)
+      .doSignInWithEmailAndPassword(this.state.email, this.state.password)
       .then(() => {
         this.setState(() => ({ ...SignInForm.INITIAL_STATE }));
-        history.push(routes.HOME);
+        this.props.history!.push(routes.HOME);
       })
       .catch(error => {
         this.setState(SignInForm.propKey("error", error));
       });
-
-    event.preventDefault();
   };
 
   public render() {
-    const { email, password, error } = this.state;
-
-    const isInvalid = password === "" || email === "";
+    const isInvalid = this.state.password === "" || this.state.email === "";
 
     return (
-      <form onSubmit={event => this.onSubmit(event)}>
+      <form onSubmit={this.onSubmit}>
         <input
-          value={email}
-          onChange={event => this.setStateWithEvent(event, "email")}
+          id="email"
+          value={this.state.email}
+          onChange={this.setStateWithEvent}
           type="text"
           placeholder="Email Address"
         />
         <input
-          value={password}
-          onChange={event => this.setStateWithEvent(event, "password")}
+          id="password"
+          value={this.state.password}
+          onChange={this.setStateWithEvent}
           type="password"
           placeholder="Password"
         />
@@ -76,12 +71,17 @@ export class SignInForm extends React.Component<
           Sign In
         </button>
 
-        {error && <p>{error.message}</p>}
+        {this.state.error && <p>{this.state.error.message}</p>}
       </form>
     );
   }
 
-  private setStateWithEvent(event: any, columnType: string): void {
-    this.setState(SignInForm.propKey(columnType, (event.target as any).value));
+  private setStateWithEvent(event: React.ChangeEvent<HTMLInputElement>): void {
+    this.setState(SignInForm.propKey(event.target.id, event.target.value));
+  }
+
+  private bindEvents() {
+    this.setStateWithEvent = this.setStateWithEvent.bind(this);
+    this.onSubmit = this.onSubmit.bind(this);
   }
 }
