@@ -27,8 +27,9 @@ export const doPasswordReset = (email: string) =>
 
 // Password Change
 export const doPasswordUpdate = async (password: string) => {
+  console.log('Current user', auth.currentUser);
   if (auth.currentUser) {
-    await auth.currentUser.updatePassword(password);
+    return await auth.currentUser.updatePassword(password);
   }
   throw Error("No auth.currentUser!");
 };

@@ -1,13 +1,14 @@
+import { History } from "history";
 import * as React from "react";
 import { withRouter } from "react-router-dom";
 import { PasswordForgetLink } from "../PasswordForget";
 import { SignUpLink } from "../SignUp";
 import { SignInForm } from "./SignInForm";
 
-const SignInComponent = ({ history }: { [key: string]: any }) => (
+const SignInComponent = (props: { history: History }) => (
   <div>
     <h1>SignIn</h1>
-    <SignInForm history={history} />
+    <SignInForm history={props.history} />
     <SignUpLink />
     <PasswordForgetLink />
   </div>
